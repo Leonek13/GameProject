@@ -29,7 +29,7 @@ coin_img = py.transform.scale(coin_img, (60, 60))
 background = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Desert.webp")
 background = py.transform.scale(background, (600, 600))
 
-p1 = Player(0, 0, 60, 60, char)
+p1 = Player(0, 0, 60, 60, knight)
 obstacleList = []
 for r in range(row):
     for c in range(col):
