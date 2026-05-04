@@ -2,6 +2,7 @@ import pygame as py
 from pygame import mixer
 from random import randint
 from player import Player, Obstacle
+py.init()
 py.mixer.init()
 
 cell_w, cell_h = 60, 60
@@ -16,7 +17,8 @@ grid[0][0], grid[0][1], grid[1][0] = 1, 1, 1
 for r in grid:
     print(r)
 
-
+archer = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\Archer.png")
+archer = py.transform.scale(archer, (60, 60))
 wizard = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Wizard.png.png")
 wizard = py.transform.scale(wizard, (60, 60))
 knight = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Knight-removebg-preview.png")
@@ -29,7 +31,73 @@ coin_img = py.transform.scale(coin_img, (60, 60))
 background = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Desert.webp")
 background = py.transform.scale(background, (600, 600))
 
-p1 = Player(0, 0, 60, 60, knight)
+def character_select():
+    '''
+    Shows a selection screen with three characters.
+    '''
+    font_title = py.font.SysFont(None, 60)
+    font_label = py.font.SysFont(None, 32)
+    font_hint = py.font.SysFont(None, 24)
+
+    characters = [
+        {"name": "Knight", "img": knight},
+        {"name": "Wizard", "img": wizard},
+        {"name": "Archer", "img": archer},
+    ]
+
+    preview_size = 120
+    previews = [py.transform.scale(c["img"], (preview_size, preview_size)) for c in characters]
+
+    spacing = (screen_w + panel_w) // (len(characters) + 1)
+    card_w, card_h = preview_size + 20, preview_size + 50
+    rects = []
+    for i in range(len(characters)):
+        cx = spacing * (i + 1) - card_w // 2
+        cy = screen_h // 2 - card_h // 2
+        rects.append(py.Rect(cx, cy, card_w, card_h))
+
+    selected = None
+    hovered = None
+
+    while selected is None:
+        screen.fill((30, 20, 40))
+
+        title_surf = font_title.render("Choose Your Character", True, (255, 220, 100))
+        screen.blit(title_surf, ((screen_w + panel_w) // 2 - title_surf.get_width() // 2, 60))
+        hint_surf = font_hint.render("Click to Select", True, (180, 180, 180))
+        screen.blit(hint_surf, ((screen_w + panel_w) // 2 - hint_surf.get_width() // 2, 130))
+        mouse_pos = py.mouse.get_pos()
+        hovered = None
+        for i, rect in enumerate(rects):
+            if rect.collidepoint(mouse_pos):
+                hovered = i
+        for i, (char, rect) in enumerate(zip(characters, rects)):
+            color = (80, 60, 110) if hovered == i else (50, 40, 70)
+            border_color = (255, 220, 100) if hovered == i else (100, 80, 130)
+            py.draw.rect(screen, color, rect, border_radius = 12)
+            py.draw.rect(screen, border_color, rect, width = 3, border_radius = 12)
+            img_x = rect.x + (card_w - preview_size) // 2
+            img_y = rect.y + 10
+            screen.blit(previews[i], (img_x, img_y))
+            label = font_label.render(char["name"], True, (255, 255, 255))
+            screen.blit(label, (rect.x + card_w // 2 - label.get_width() // 2, rect.y + preview_size + 18))
+        
+        py.display.flip()
+
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                py.quit()
+                exit()
+            if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
+                for i, rect in enumerate(rects):
+                    if rect.collidepoint(event.pos):
+                        selected = characters[i]["img"]
+    return selected
+
+chosen_img = character_select()
+py.display.set_caption("Generating random grid")
+
+p1 = Player(0, 0, 60, 60, chosen_img)
 obstacleList = []
 for r in range(row):
     for c in range(col):
@@ -37,9 +105,8 @@ for r in range(row):
             obstacleList.append(Obstacle(c*cell_w, r*cell_h, spikes))
 
 clock = py.time.Clock()
-py.init()
 screen = py.display.set_mode((screen_w + panel_w,screen_h))
-py.display.set_caption("Generating random grid")
+
 
 
 def drawGrid(grid:list[list]):
