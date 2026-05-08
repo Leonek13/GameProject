@@ -30,6 +30,8 @@ coin_img = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Gold-Coin.pn
 coin_img = py.transform.scale(coin_img, (60, 60))
 background = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Desert.webp")
 background = py.transform.scale(background, (600, 600))
+enemy_img = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\zombie.webp")
+enemy_img = py.transform.scale(enemy_img, (60, 60))
 
 def character_select():
     '''
@@ -60,11 +62,11 @@ def character_select():
     hovered = None
 
     while selected is None:
-        screen.fill((30, 20, 40))
+        screen.fill("#1e1428")
 
-        title_surf = font_title.render("Choose Your Character", True, (255, 220, 100))
+        title_surf = font_title.render("Choose Your Character", True, "#ffdc64")
         screen.blit(title_surf, ((screen_w + panel_w) // 2 - title_surf.get_width() // 2, 60))
-        hint_surf = font_hint.render("Click to Select", True, (180, 180, 180))
+        hint_surf = font_hint.render("Click to Select", True, "#b4b4b4")
         screen.blit(hint_surf, ((screen_w + panel_w) // 2 - hint_surf.get_width() // 2, 130))
         mouse_pos = py.mouse.get_pos()
         hovered = None
@@ -72,14 +74,14 @@ def character_select():
             if rect.collidepoint(mouse_pos):
                 hovered = i
         for i, (char, rect) in enumerate(zip(characters, rects)):
-            color = (80, 60, 110) if hovered == i else (50, 40, 70)
-            border_color = (255, 220, 100) if hovered == i else (100, 80, 130)
+            color = "#503c6e" if hovered == i else "#322846"
+            border_color = "#ffdc64" if hovered == i else "#645082"
             py.draw.rect(screen, color, rect, border_radius = 12)
             py.draw.rect(screen, border_color, rect, width = 3, border_radius = 12)
             img_x = rect.x + (card_w - preview_size) // 2
             img_y = rect.y + 10
             screen.blit(previews[i], (img_x, img_y))
-            label = font_label.render(char["name"], True, (255, 255, 255))
+            label = font_label.render(char["name"], True, "#ffffff")
             screen.blit(label, (rect.x + card_w // 2 - label.get_width() // 2, rect.y + preview_size + 18))
         
         py.display.flip()
@@ -91,13 +93,14 @@ def character_select():
             if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
                 for i, rect in enumerate(rects):
                     if rect.collidepoint(event.pos):
-                        selected = characters[i]["img"]
+                        selected = characters[i]
     return selected
 
-chosen_img = character_select()
+
+chosen_character = character_select()
 py.display.set_caption("Generating random grid")
 
-p1 = Player(0, 0, 60, 60, chosen_img)
+p1 = Player(0, 0, 60, 60, chosen_character["img"], chosen_character["name"])
 obstacleList = []
 for r in range(row):
     for c in range(col):

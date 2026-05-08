@@ -16,25 +16,25 @@ def collision(x, y, r):
             return True
     return False
 
-running = True
-clock = py.time.Clock()
-while running:
-    for event in py.event.get():
-        if event.type == py.QUIT:
-            running = False
-    clock.tick(60) 
-    screen.fill("#ffffff")
-    py.draw.circle(screen, "#ff0000", (x, y), r)
-    py.draw.line(screen, "#0000ff", (400, 200), (400, 300), 5)
-    keys = py.key.get_pressed() 
-    if keys[py.K_a] and x > r and not collision(x, y, r):
-        x -= speedX
-    if keys[py.K_d] and x < 600 - r and not collision(x, y, r):
-        x += speedX
-    if keys[py.K_w] and y > r and not collision(x, y, r):
-        y -= speedY
-    if keys[py.K_s] and y < 600 - r and not collision(x, y, r):
-        y += speedY
-    py.display.flip()
+# running = True
+# clock = py.time.Clock()
+# while running:
+#     for event in py.event.get():
+#         if event.type == py.QUIT:
+#             running = False
+#     clock.tick(60) 
+#     screen.fill("#ffffff")
+#     py.draw.circle(screen, "#ff0000", (x, y), r)
+#     py.draw.line(screen, "#0000ff", (400, 200), (400, 300), 5)
+#     keys = py.key.get_pressed() 
+#     if keys[py.K_a] and x > r and not collision(x, y, r):
+#         x -= speedX
+#     if keys[py.K_d] and x < 600 - r and not collision(x, y, r):
+#         x += speedX
+#     if keys[py.K_w] and y > r and not collision(x, y, r):
+#         y -= speedY
+#     if keys[py.K_s] and y < 600 - r and not collision(x, y, r):
+#         y += speedY
+#     py.display.flip()
 
 py.quit()
