@@ -1,7 +1,7 @@
 import pygame as py
 from pygame import mixer
 from random import randint
-from player import Player, Obstacle
+from player import Player, Obstacle, Enemy
 py.init()
 py.mixer.init()
 
@@ -30,7 +30,7 @@ coin_img = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Gold-Coin.pn
 coin_img = py.transform.scale(coin_img, (60, 60))
 background = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Desert.webp")
 background = py.transform.scale(background, (600, 600))
-enemy_img = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\zombie.webp")
+enemy_img = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\zombie.webp")
 enemy_img = py.transform.scale(enemy_img, (60, 60))
 
 def character_select():
@@ -100,6 +100,12 @@ def character_select():
 chosen_character = character_select()
 py.display.set_caption("Generating random grid")
 
+enemyList = []
+for r in range(row):
+    for c in range(col):
+        if grid[r][c] == 2:
+            enemyList.append(Enemy(c * 60, r * 60, enemy_img))
+
 p1 = Player(0, 0, 60, 60, chosen_character["img"], chosen_character["name"])
 obstacleList = []
 for r in range(row):
@@ -146,6 +152,14 @@ while run:
             run = False
         p1.move(screen, grid, event)
         coin = find(coin)
+        if event.type == py.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                p1.attack(enemyList)
+        for enemy in enemyList:
+            enemy.attack_player(p1)
+    if p1.iframes > 0:
+        p1.iframes -= 1
+    p1.check_lvl_up()
     clock.tick(15)
     screen.blit(background, (0,0))
     drawGrid(grid)

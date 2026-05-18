@@ -26,7 +26,37 @@ class Player:
         self.has_key = False
         self.iframes = 0
         self.iframes_max = 45
+        self.weapon = "Fists"
+        self.atk_dmg = 10
 
+    def attack(self, enemies):
+        player_r = self.y // 60
+        player_c = self.x // 60
+        for enemy in enemies:
+            if not enemy.alive:
+                continue
+            enemy_r = enemy.y // 60
+            enemy_c = enemy.x // 60
+            delta_x = abs(player_c - enemy_c)
+            delta_y = abs(player_r - enemy_r)
+
+            if self.class_name == "Knight":
+                if delta_x <= 1 and delta_y <= 1:
+                    enemy.take_damage(self.atk_dmg)
+            elif self.class_name == "Archer":
+                if delta_x <= 3 and delta_y <= 4:
+                    enemy.take_damage(self.atk_dmg)
+            elif self.class_name == "Wizard":
+                if delta_x <= 3 and delta_y <= 3:
+                    center_r = enemy_r
+                    center_c = enemy_c
+
+                    for other_enemy in enemies:
+                        if not other_enemy.alive:
+                            continue
+                        other_r = other_enemy.y // 60
+                        other_c = other_enemy.x // 60
+                        
 
 
     
@@ -56,6 +86,19 @@ class Player:
                 self.collide = True
         elif self.collide == True:
             self.collide = False
+    
+    def check_lvl_up(self):
+        if self.xp >= 100 and self.has_weapon == False:
+            self.has_weapon == True
+            if self.class_name == "Knight":
+                self.weapon = "Sword"
+                self.atk_dmg = 30
+            if self.class_name == "Wizard":
+                self.weapon = "Staff"
+                self.atk_dmg = 15
+            if self.class_name == "Archer":
+                self.weapon = "Bow"
+                self.atk_dmg = 25
 
 
 class Obstacle:
@@ -97,4 +140,12 @@ class Enemy:
         self.hp -= amount
         if self.hp <= 0:
             self.alive = False
+
+    def attack_player(self, player):
+        if self.alive:
+            if abs(self.x - player.x) <= 60 and (self.y - player.y) <= 60:
+                if player.iframes == 0:
+                    player.hp -= self.dmg
+                    player.iframes = player.iframes_max
+        
             
