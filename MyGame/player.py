@@ -43,9 +43,13 @@ class Player:
             if self.class_name == "Knight":
                 if delta_x <= 1 and delta_y <= 1:
                     enemy.take_damage(self.atk_dmg)
+                    if not enemy.alive:
+                        self.xp += 20
             elif self.class_name == "Archer":
                 if delta_x <= 3 and delta_y <= 4:
                     enemy.take_damage(self.atk_dmg)
+                    if not enemy.alive:
+                        self.xp += 20
             elif self.class_name == "Wizard":
                 if delta_x <= 3 and delta_y <= 3:
                     center_r = enemy_r
@@ -56,7 +60,10 @@ class Player:
                             continue
                         other_r = other_enemy.y // 60
                         other_c = other_enemy.x // 60
-                        
+                        if center_r <= other_r < center_r + 2 and center_c <= other_c < center_c + 2:
+                            other_enemy.take_damage(self.atk_dmg)
+                            if not enemy.alive:
+                                self.xp += 20
 
 
     
