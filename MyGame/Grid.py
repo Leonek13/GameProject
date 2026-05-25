@@ -5,57 +5,37 @@ from player import Player, Obstacle, Enemy
 py.init()
 py.mixer.init()
 
-cell_w, cell_h = 60, 60
-row, col = 9, 9
+cell_w, cell_h = 40, 40
+row, col = 15, 15
 screen_w, screen_h = col * cell_w, row*cell_h
-panel_w = 4 * cell_w
+panel_w = 6 * cell_w
 screen = py.display.set_mode((screen_w + panel_w, screen_h))
 py.display.set_caption("Character Select")
-shop_message = ""
+shop_message = " "
 
 grid = [[randint(0,4) for i in range(col)] for j in range(row)]
 grid[0][0], grid[0][1], grid[1][0] = 1, 1, 1
-grid[0][8] = 7
+grid[0][14] = 7
 for r in grid:
     print(r)
 
 archer = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\Archer.png")
-archer = py.transform.scale(archer, (60, 60))
+archer = py.transform.scale(archer, (40, 40))
 wizard = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Wizard.png.png")
-wizard = py.transform.scale(wizard, (60, 60))
+wizard = py.transform.scale(wizard, (40, 40))
 knight = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Knight-removebg-preview.png")
-knight = py.transform.scale(knight, (60, 60))    
+knight = py.transform.scale(knight, (40, 40))    
 spikes = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Spikes-removebg-preview.png")
-spikes = py.transform.scale(spikes, (60, 60))
+spikes = py.transform.scale(spikes, (40, 40))
 coin_sound = py.mixer.Sound("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\ribhavagrawal-coin-recieved-230517.mp3")
 coin_img = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Gold-Coin.png")
-coin_img = py.transform.scale(coin_img, (60, 60))
+coin_img = py.transform.scale(coin_img, (40, 40))
 background = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Desert.webp")
 background = py.transform.scale(background, (600, 600))
 enemy_img = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\zombie.webp")
-enemy_img = py.transform.scale(enemy_img, (60, 60))
+enemy_img = py.transform.scale(enemy_img, (40, 40))
 shop_img = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\shop.png")
-shop_img = py.transform.scale(shop_img, (60, 60))
-
-enemyList = []
-max_enemies = 3
-def spawn_enemy():
-    while True:
-        r = randint(0, row - 1)
-        c = randint(0, col - 1)
-        if grid[r][c] != 0:
-            if p1.x == c * 60 and p1.y == r * 60:
-                continue
-            occupied = False
-            for enemy in enemyList:
-                if enemy.x == c * 60 and enemy.y == r * 60:
-                    occupied = True
-            if not occupied:
-                enemyList.append(Enemy(c * 60, r * 60, enemy_img))
-                break
-    
-for i in range(max_enemies):
-    spawn_enemy
+shop_img = py.transform.scale(shop_img, (40, 40))
 
 def character_select():
     '''
@@ -123,14 +103,33 @@ def character_select():
 
 chosen_character = character_select()
 py.display.set_caption("Generating random grid")
+p1 = Player(0, 0, 40, 40, chosen_character["img"], chosen_character["name"])
 
+enemyList = []
+max_enemies = 3
+def spawn_enemy():
+    while True:
+        r = randint(0, row - 1)
+        c = randint(0, col - 1)
+        if grid[r][c] == 1:
+            if p1.x == c * 40 and p1.y == r * 40:
+                continue
+            occupied = False
+            for enemy in enemyList:
+                if enemy.x == c * 40 and enemy.y == r * 40:
+                    occupied = True
+            if not occupied:
+                enemyList.append(Enemy(c * 40, r * 40, enemy_img))
+                break
+    
+for i in range(max_enemies):
+    spawn_enemy()
 
 for r in range(row):
     for c in range(col):
         if grid[r][c] == 2:
-            enemyList.append(Enemy(c * 60, r * 60, enemy_img))
+            enemyList.append(Enemy(c * 40, r * 40, enemy_img))
 
-p1 = Player(0, 0, 60, 60, chosen_character["img"], chosen_character["name"])
 obstacleList = []
 for r in range(row):
     for c in range(col):
@@ -155,21 +154,25 @@ def drawGrid(grid:list[list]):
 
 coin = 0
 def draw_panel(screen, message):
-    font = py.font.SysFont(None, 30)
+    font = py.font.SysFont(None, 25)
     py.draw.rect(screen, "#0D1185", (screen_w, 0, panel_w, screen_h))
     textSurface = font.render(f"Coins: {coin}", True, "#ffffff")
     screen.blit(textSurface, (screen_w + 20, 40))
     messageSurface = font.render(message, True, "#ff0000")
-    screen.blit = (messageSurface, (screen_w + 20, 100))
+    screen.blit(messageSurface, (screen_w + 20, 100))
     if grid[r][c] == 7:
         text1 = font.render("1 = Potion (5 coins)", True, "#ffffff")
         text2 = font.render("2 = Key (20 coins)", True, "#ffffff")
+        text3 = font.render("3 = HP Upgrade (15 coins)", True, "#ffffff")
+        text4 = font.render("4 = Dmg Upgrade (15 coins)", True, "#ffffff")
         screen.blit(text1, (screen_w + 10, 100))
         screen.blit(text2, (screen_w + 10, 125))
+        screen.blit(text3, (screen_w + 10, 150))
+        screen.blit(text4, (screen_w + 10, 175))
 
 def find(coin):
-    r = p1.y // 60
-    c = p1.x // 60  
+    r = p1.y // 40
+    c = p1.x // 40  
     if event.type == py.KEYDOWN:
         if event.key == py.K_SPACE and grid[r][c] == 3:
             coin += 1
@@ -192,8 +195,53 @@ while run:
                 p1.attack(enemyList)
         for enemy in enemyList:
             enemy.attack_player(p1)
-    if p1.iframes > 0:
-        p1.iframes -= 1
+        r = p1.y // 40
+        c = p1.x // 40
+        if grid[r][c] == 7:
+            if event.type == py.KEYDOWN:
+                if event.key == py.K_1:
+                    if coin >= 5:
+                        coin -= 5
+                        p1.potions += 1
+                        shop_message = "Potion bought!"
+                        message_timer = 60
+                    else: 
+                        shop_message = "Not enough coins :("
+                        message_timer = 60
+                if event.key == py.K_2:
+                    if coin >= 20:
+                        coin -= 20
+                        p1.has_key = True
+                        shop_message = "Key bought!"
+                        message_timer = 60
+                    else:
+                        shop_message = "Not enough coins :("
+                        message_timer = 60
+                if event.key == py.K_3:
+                    if coin >= 15:
+                        coin -= 15
+                        p1.max_hp += 20
+                        p1.hp = p1.max_hp
+                        shop_message = "Health Upgrade bought!"
+                        message_timer = 60
+                    else:
+                        shop_message = "Not enough coins :("
+                        message_timer = 60
+                if event.key == py.K_4:
+                    if coin >= 15:
+                        coin -= 15
+                        p1.atk_dmg += 5
+                        shop_message = "Damage Upgrade bought !"
+                        message_timer = 60
+                    else:
+                        shop_message = "Not enough coins :("
+                        message_timer = 60
+        if event.type == py.KEYDOWN:
+            if event.key == py.K_e:
+                p1.use_potion()
+        
+    for enemy in enemyList:
+        enemy.move_towards_player(p1, grid)
     p1.check_lvl_up()
     spawn_timer += 1
     enemyList = [e for e in enemyList if e.alive]
@@ -201,26 +249,6 @@ while run:
         while len(enemyList) < max_enemies:
             spawn_enemy()
         spawn_timer = 0
-    r = p1.y // 60
-    c = p1.x // 60
-    if grid[r][c] == 7:
-        if event.type == py.KEYDOWN:
-            if event.key == py.K_1:
-                if coin >= 5:
-                    coin -= 5
-                    p1.potions += 1
-                    shop_message = "Potion bought!"
-                else: 
-                    shop_message = "Not enough coins :("
-                    message_timer = 60
-            if event.key == py.K_2:
-                if coin >= 20:
-                    coin -= 20
-                    p1.has_key = True
-                    shop_message = "Key bought!"
-                else:
-                    shop_message = "Not enough coins :("
-                    message_timer = 60
     if message_timer > 0:
         message_timer -= 1
     else:
@@ -231,5 +259,7 @@ while run:
     draw_panel(screen, shop_message)
     p1.draw(screen)
     py.display.flip()
+    if p1.iframes > 0:
+        p1.iframes -= 1
 py.quit()
 
