@@ -1,6 +1,7 @@
 import pygame as py
 from random import randint
 py.mixer.init()
+enemy_death = py.mixer.Sound("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\Zombie_death.ogg")
 class Player:
     '''
     Player is a rectangle object of pygame
@@ -29,8 +30,13 @@ class Player:
         self.weapon = "Fists"
         self.atk_dmg = 10
         self.potions = 0
+        self.atk_cooldown = 0
+        self.atk_cooldown_max = 15
 
     def attack(self, enemies):
+        if self.atk_cooldown > 0:
+            return
+        self.atk_cooldown = self.atk_cooldown_max
         player_r = self.y // 40
         player_c = self.x // 40
         for enemy in enemies:
@@ -77,7 +83,8 @@ class Player:
          screen.blit(self.img, (self.x, self.y))
          bar_w = self.w 
          filled = int(bar_w * self.hp / self.max_hp)
-         py.draw.rect(screen, "#00ff1e", (self.x, self.y + self.h + 2, bar_w, 5))
+         py.draw.rect(screen, "#ff0000", (self.x, self.y + self.h + 2, bar_w, 5))
+         py.draw.rect(screen, "#00ff1e", (self.x, self.y + self.h + 2, filled, 5))
     
     def move(self, screen:any, grid:list[list], event):
         r = self.y // 40
@@ -148,6 +155,8 @@ class Enemy:
         self.hp = self.max_hp
         self.dmg = 10
         self.alive = True
+        self.move_timer = 0
+        self.move_delay = 30
 
     def draw(self, screen):
         if self.alive:
@@ -160,10 +169,11 @@ class Enemy:
         self.hp -= amount
         if self.hp <= 0:
             self.alive = False
+            enemy_death.play()
 
     def attack_player(self, player):
         if self.alive:
-            if abs(self.x - player.x) <= 40 and (self.y - player.y) <= 40:
+            if abs(self.x - player.x) <= 40 and abs(self.y - player.y) <= 40:
                 if player.iframes == 0:
                     player.hp -= self.dmg
                     player.iframes = player.iframes_max
@@ -171,6 +181,10 @@ class Enemy:
     def move_towards_player(self, player, grid):
         if not self.alive:
             return
+        self.move_timer += 1
+        if self.move_timer < self.move_delay:
+            return
+        self.move_timer = 0
         enemy_r = self.y // 40
         enemy_c = self.x // 40
         player_r = player.y // 40

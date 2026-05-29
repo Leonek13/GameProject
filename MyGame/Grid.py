@@ -32,10 +32,31 @@ coin_img = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Gold-Coin.pn
 coin_img = py.transform.scale(coin_img, (40, 40))
 background = py.image.load("C:\\Users\\01Solec\\PreDP2-LeonT\\MyGame\\Desert.webp")
 background = py.transform.scale(background, (600, 600))
-enemy_img = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\zombie.webp")
+enemy_img = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\Zombie.png")
 enemy_img = py.transform.scale(enemy_img, (40, 40))
 shop_img = py.image.load("C:\\Users\\01Solec\\Documents\\PygameProjectRepo\\GameProject\\MyGame\\shop.png")
 shop_img = py.transform.scale(shop_img, (40, 40))
+
+def game_over_screen():
+    font_title = py.font.SysFont(None, 80)
+    font_hint = py.font.SysFont(None, 36)
+    while True:
+        screen.fill("#1e0000")
+        title_surf = font_title.render("GAME OVER", True, "#ff3333")
+        screen.blit(title_surf, ((screen_w + panel_w) // 2 - title_surf.get_width() // 2, screen_h // 2 - 60))
+        hint_surf  = font_hint.render("Press R to Restart or Q to Quit", True, "#CAC6C6")
+        screen.blit(hint_surf, ((screen_w + panel_w) // 2 - hint_surf.get_width() // 2, screen_h // 2 + 20))
+        py.display.flip()
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                py.quit()
+                exit()
+            if event.type == py.KEYDOWN:
+                if event.key == py.K_r:
+                    return "restart"
+                if event.key == py.K_q:
+                    py.quit()
+                    exit()
 
 def character_select():
     '''
@@ -125,11 +146,6 @@ def spawn_enemy():
 for i in range(max_enemies):
     spawn_enemy()
 
-for r in range(row):
-    for c in range(col):
-        if grid[r][c] == 2:
-            enemyList.append(Enemy(c * 40, r * 40, enemy_img))
-
 obstacleList = []
 for r in range(row):
     for c in range(col):
@@ -158,8 +174,18 @@ def draw_panel(screen, message):
     py.draw.rect(screen, "#0D1185", (screen_w, 0, panel_w, screen_h))
     textSurface = font.render(f"Coins: {coin}", True, "#ffffff")
     screen.blit(textSurface, (screen_w + 20, 40))
+    hpSurface = font.render(f"HP: {p1.hp} / {p1.max_hp}", True, "#00ff1e")
+    screen.blit(hpSurface, (screen_w + 20, 65))
     messageSurface = font.render(message, True, "#ff0000")
-    screen.blit(messageSurface, (screen_w + 20, 100))
+    screen.blit(messageSurface, (screen_w + 20, 200))
+    text5 = font.render("Movement = Arrows", True, "#ffffff")
+    text6 = font.render("Dig = Space", True, "#ffffff")
+    text7 = font.render("Attack = Left Click", True, "#ffffff")
+    text8 = font.render("Potion = E", True, "#ffffff")
+    screen.blit(text5, (screen_w + 10, 250))
+    screen.blit(text6, (screen_w + 10, 275))
+    screen.blit(text7, (screen_w + 10, 300))
+    screen.blit(text8, (screen_w + 10, 325))
     if grid[r][c] == 7:
         text1 = font.render("1 = Potion (5 coins)", True, "#ffffff")
         text2 = font.render("2 = Key (20 coins)", True, "#ffffff")
@@ -193,8 +219,6 @@ while run:
         if event.type == py.MOUSEBUTTONDOWN:
             if event.button == 1:
                 p1.attack(enemyList)
-        for enemy in enemyList:
-            enemy.attack_player(p1)
         r = p1.y // 40
         c = p1.x // 40
         if grid[r][c] == 7:
@@ -239,9 +263,7 @@ while run:
         if event.type == py.KEYDOWN:
             if event.key == py.K_e:
                 p1.use_potion()
-        
-    for enemy in enemyList:
-        enemy.move_towards_player(p1, grid)
+
     p1.check_lvl_up()
     spawn_timer += 1
     enemyList = [e for e in enemyList if e.alive]
@@ -254,12 +276,27 @@ while run:
     else:
         shop_message = ""
     clock.tick(15)
+    for enemy in enemyList:
+        enemy.move_towards_player(p1, grid)
+        enemy.attack_player(p1)
     screen.blit(background, (0,0))
-    drawGrid(grid)
     draw_panel(screen, shop_message)
+    for enemy in enemyList:
+        enemy.draw(screen)
+    drawGrid(grid)
     p1.draw(screen)
     py.display.flip()
     if p1.iframes > 0:
         p1.iframes -= 1
+    if p1.atk_cooldown > 0:
+        p1.atk_cooldown -= 1
+    if p1.hp <+ 0:
+        result = game_over_screen()
+        if result == "restart":
+            py.quit()
+            py.init()
+            py.mixer.init()
+            exec(open(__file__).read())
+            break
 py.quit()
 
